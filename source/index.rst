@@ -6,7 +6,7 @@
 Welcome to Zheng-Da He's research notes!
 ==============================================
 
-In this document I will summarize all the relevant details of my research, and also it can become a central place for storing all the knowledge that I have gained. I think it is really important to share that to other people, because I also have learned a lot from other people's notes. Research is hard, and information can sometimes be overwhelming, so we need to use technology to help us organize them, and I find `sphinx <https://www.sphinx-doc.org/en/master/>` is a really good tool.
+In this document I will summarize all the relevant details of my research, and also it can become a central place for storing all the knowledge that I have gained. I think it is really important to share that to other people, because I also have learned a lot from other people's notes. Research is hard, and information can sometimes be overwhelming, so we need to use technology to help us organize them, and I find `sphinx <https://www.sphinx-doc.org/en/master/>`_ is a really good tool.
 
 I will divide all my notes into different categories in below:
 
@@ -23,6 +23,8 @@ I will divide all my notes into different categories in below:
    softwares/index
 
    projects/index
+
+   literature/index
 
 Indices and tables
 ==================
