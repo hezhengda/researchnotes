@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Zheng-Da He's research notes!
-==============================================
+Welcome to my own research land
+===============================
 
 In this document I will summarize all the relevant details of my research, and also it can become a central place for storing all the knowledge that I have gained. I think it is really important to share that to other people, because I also have learned a lot from other people's notes. Research is hard, and information can sometimes be overwhelming, so we need to use technology to help us organize them, and I find `sphinx <https://www.sphinx-doc.org/en/master/>`_ is a really good tool.
 
