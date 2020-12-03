@@ -1,0 +1,310 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>C Programming Language &mdash; hzd-research-notes 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="C++ Programming Language" href="c%2B%2B.html" />
+    <link rel="prev" title="Computer Languages for Scientific Computing" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> hzd-research-notes
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../theoreticalbackground/index.html">Theoretical Background</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Computer Languages for Scientific Computing</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">C Programming Language</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-commands">Basic commands</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#define-a-variable">Define a variable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#basic-operations-on-a-variable">Basic operations on a variable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolean-operation">Boolean Operation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#conditional-statements">Conditional Statements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#loops">Loops</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#structural-data">Structural Data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#functions-and-procedures">Functions and Procedures</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#organization-of-the-code">Organization of the code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#external-packages">External packages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="c%2B%2B.html">C++ Programming Language</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python.html">Python Programming Language</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fortran.html">Fortran Programming Language</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../softwares/index.html">Softwares</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../literature/index.html">Welcome to Literature Reading Room!</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hzd-research-notes</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Computer Languages for Scientific Computing</a> &raquo;</li>
+        
+      <li>C Programming Language</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/computerlanguages/c.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="c-programming-language">
+<h1>C Programming Language<a class="headerlink" href="#c-programming-language" title="Permalink to this headline">¶</a></h1>
+<p>The C programming language was originally developed by Dennis Ritchie at Bell Labs between 1972 and 1973 (For more details, you can visit the <a class="reference external" href="https://en.wikipedia.org/wiki/C_(programming_language)">wikipedia</a>). It is a compiled language, which means that in order to run the program written by C, we need to compile it first into an executable (or binary file), then run it as a program. So before we write any C code, we need to things: (1) an edit for writing our C code (2) a compiler for compiling the C code and turn them to an executable. The most common compiler is <a class="reference external" href="https://gcc.gnu.org/">gcc</a>, which can be easily download from the website.</p>
+<p>In C code, you can use <cite>//</cite> for commenting in a single line; and you can use <cite>/* … */</cite> to comment in multiple line.</p>
+<div class="section" id="basic-commands">
+<h2>Basic commands<a class="headerlink" href="#basic-commands" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="define-a-variable">
+<h3>Define a variable<a class="headerlink" href="#define-a-variable" title="Permalink to this headline">¶</a></h3>
+<p>When you define a variable in C, you need to explicity state the type of that variable.</p>
+<p>For example if you want to define an integer, you can do: <cite>int x;</cite> It is also important to know that in C language, the semicolon <cite>;</cite> is very important, this symbol means the end of a statement. Withouth <cite>;</cite>, the compiler will complain.</p>
+<p>There are other types of variables that you can define in C, for the common ones, I list them in the following:</p>
+<ul class="simple">
+<li><p><cite>int thisIsInteger = 1;</cite></p></li>
+<li><p><cite>double thisIsDouble = 1.23;</cite></p></li>
+<li><p><cite>char thisIsChar = ‘a’;</cite></p></li>
+<li><p><cite>float thisIsFloat = 1.3;</cite></p></li>
+<li><p><cite>long thisIsLong = 143000;</cite></p></li>
+<li><p><cite>long double thisIsLongDouble = 2222222.522;</cite></p></li>
+<li><p><cite>bool thisIsBoolean = true</cite></p></li>
+</ul>
+<p>Sometimes, a variable can be a constant, which means once its value has been assigned, you cannot change the value. In C, you can define a constant variable like this: <cite>const int thisIsConstantInteger = 5;</cite></p>
+<div class="section" id="array">
+<h4>Array<a class="headerlink" href="#array" title="Permalink to this headline">¶</a></h4>
+<p>If we want to store a series of data, then we need to use array. In C, it is really easy to define an array variable.</p>
+<p>For a integer array, it can be defined in this way: <cite>int thisIsIntegerArray[10]</cite>, which means it will have 10 elements, id from 0 to 9. Each element can be accessed by <cite>array[i]</cite>, where <cite>i</cite> is the id of the element.</p>
+<p>If we want to create a <strong>multi-dimensional array</strong>, we can do it in this way:</p>
+<p><cite>int thisIsMultiDimensionalIntArray[10][10]</cite></p>
+</div>
+<div class="section" id="pointer">
+<h4>Pointer<a class="headerlink" href="#pointer" title="Permalink to this headline">¶</a></h4>
+<p>The <strong>Pointer</strong> type in C is a powerful type. It stores the address of a variable, for example if I have a variable called <cite>var</cite>, then <cite>&amp;var</cite> means the address of the variable <cite>var</cite>. Each type of variables has its own type of pointers, for example if I want to define a pointer that can point to a float number, then I can do it in this way: <cite>float* thisIsAPointerForAFloatVariable</cite>.</p>
+<p>The pointer can also have its own pointer: <cite>float**</cite>, it may be useful, but it can cause confusion really quickly.</p>
+</div>
+<div class="section" id="struct">
+<h4>Struct<a class="headerlink" href="#struct" title="Permalink to this headline">¶</a></h4>
+<p>Sometimes when we want to describe a things, for example a human being. We need many different types of data related to that human being. Like name, age, height, sex, etc. So we need to put all these information together in order to access them quickly and efficiently. We can do that easily in C by using the <cite>struct</cite> type.</p>
+<p>In here we define a <cite>struct</cite> variable named <cite>Person</cite>:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="nc">Person</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">name</span><span class="p">[</span><span class="mi">50</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">socialSecurityNumber</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">salary</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Then we can define a <cite>Person</cite> variable in this way: <cite>struct Person person1, person2</cite>. And we can access the information of each person by this statement: <cite>person1.name</cite>, <cite>person2.salary</cite>.</p>
+<p>In C, we can also create a <em>nesting</em> struct, which means inside a struct there is another struct, but we can decide whether to do it or not in real examples.</p>
+</div>
+</div>
+<div class="section" id="basic-operations-on-a-variable">
+<h3>Basic operations on a variable<a class="headerlink" href="#basic-operations-on-a-variable" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="boolean-operation">
+<h3>Boolean Operation<a class="headerlink" href="#boolean-operation" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="conditional-statements">
+<h3>Conditional Statements<a class="headerlink" href="#conditional-statements" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="loops">
+<h3>Loops<a class="headerlink" href="#loops" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="structural-data">
+<h3>Structural Data<a class="headerlink" href="#structural-data" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="functions-and-procedures">
+<h3>Functions and Procedures<a class="headerlink" href="#functions-and-procedures" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="organization-of-the-code">
+<h2>Organization of the code<a class="headerlink" href="#organization-of-the-code" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="external-packages">
+<h2>External packages<a class="headerlink" href="#external-packages" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="c%2B%2B.html" class="btn btn-neutral float-right" title="C++ Programming Language" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Computer Languages for Scientific Computing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Zheng-Da He
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
