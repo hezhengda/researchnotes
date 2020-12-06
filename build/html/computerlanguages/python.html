@@ -99,7 +99,16 @@
 <li class="toctree-l4"><a class="reference internal" href="#functions-and-procedures">Functions and Procedures</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#organization-of-the-code">Organization of the code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#organization-of-the-code">Organization of the code</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#modules">Modules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#packages">Packages</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#language-sugar">Language sugar</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#decorators">Decorators</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#external-packages">External packages</a></li>
 </ul>
 </li>
@@ -107,7 +116,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../softwares/index.html">Softwares</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../literature/index.html">Welcome to Literature Reading Room!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../blogs/index.html">This is the blog from Zheng-Da He</a></li>
 </ul>
 
             
@@ -203,9 +212,120 @@
 </div>
 <div class="section" id="organization-of-the-code">
 <h2>Organization of the code<a class="headerlink" href="#organization-of-the-code" title="Permalink to this headline">¶</a></h2>
+<p>In my perspective, I think the organization of the code in python can be simplified in three parts: (1) class (2) module (3) package</p>
+<div class="section" id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<p>Python is an object-oriented programming language, which basically means you can define class in it. A class is an abstraction of an object, and we can use the <code class="code docutils literal notranslate"><span class="pre">init</span></code> method in the class to initialize an object, then we can use it later.</p>
+<p>A typical python class will have the following structures: (I use a person as a class because this is very simple)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Person</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">age</span><span class="p">,</span> <span class="n">job</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="n">age</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job</span> <span class="o">=</span> <span class="n">job</span>
+
+    <span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">set_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">get_age</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">age</span>
+
+    <span class="k">def</span> <span class="nf">set_age</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">age</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="n">age</span>
+
+    <span class="k">def</span> <span class="nf">get_job</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">job</span>
+
+    <span class="k">def</span> <span class="nf">set_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job</span> <span class="o">=</span> <span class="n">job</span>
+
+    <span class="k">def</span> <span class="nf">sayhello</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Hello, </span><span class="si">{}</span><span class="s1">, my name is </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Let’s analyze this code, and it will serve as a template for creating more classes in the future.</p>
+<p>First we need to define the name of the class, in this case the name of our class is <code class="code docutils literal notranslate"><span class="pre">Person</span></code>, and since we do not have parent class, so there is nothing in the <code class="code docutils literal notranslate"><span class="pre">()</span></code>. But if we want to inherit from other class, then we need to put the name of that class in <code class="code docutils literal notranslate"><span class="pre">()</span></code>, such as: <code class="code docutils literal notranslate"><span class="pre">class</span> <span class="pre">Person(Animal)</span></code>. The convenience of inheritance is that we do not need to implement the same properties and methods again, we can just inherit from the <code class="code docutils literal notranslate"><span class="pre">Animal</span></code> class. The parent class can be accessed by using <code class="code docutils literal notranslate"><span class="pre">super()</span></code> as the parent class, so that we can use the <code class="code docutils literal notranslate"><span class="pre">__init__</span></code> method from the paraent class: <code class="code docutils literal notranslate"><span class="pre">super().__init__()</span></code>. If you write the same function in the child class, the function in parent class will be overrided.</p>
+<p>Then the <code class="code docutils literal notranslate"><span class="pre">__init__</span></code> function is the most important function, because it tells python how to build the object, what parameters we need for creating such object. In python, each class properties will need to set a setter and a getter, means that there will be a function called <code class="code docutils literal notranslate"><span class="pre">set_propertyName()</span></code> and <code class="code docutils literal notranslate"><span class="pre">get_propertyName()</span></code>, because in this way we can protect the properties.</p>
+<p>The variable <code class="code docutils literal notranslate"><span class="pre">self</span></code> is really powerful in the class, because it is a representation of the object, we can access to all the properties and methods just by using <code class="code docutils literal notranslate"><span class="pre">self</span></code> as a normal object. And if we assign a new properties in the method (<code class="code docutils literal notranslate"><span class="pre">self.propertyName</span></code>), then it can be accessed within the class. So in this way we can create very complex classes and let python do many different things.</p>
+<p>After defining all the properties, now we can make our object do things, this is really interesting part because in OOP we are like HR (human resources), we need to assign tasks to different classes (such as different jobs in a company) in order to make them work together. So by thinking in this way we will improve our ability to organize people. If a programmer can organize information and people together, they can become billinaire (e.g. Bill Gates).</p>
+<p>In python there are three types of methods: (1) class method (2) static method (3) common method. The <cite>class method</cite> can only be accessed by the class itself, it cannot be accessed by the object created by the class. The <cite>class method</cite> can modify the properties. The <cite>static method</cite> cannot modify the state of the class or the object, because it doesn’t have implicit input parameter <code class="code docutils literal notranslate"><span class="pre">cls</span></code>. Usually one can use class method as a <em>factory</em> methods, which mean it will returns a class object, but with different initialization function. One can also use static method to create utility methods, for example to check the status of the class or the object.</p>
+<p>We can define our class methods and static methods in the following way:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">nameOfClassMethod</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">para1</span><span class="p">,</span> <span class="n">para2</span><span class="p">,</span> <span class="o">.....</span><span class="p">)</span> <span class="c1"># cls means `class`, so if we want to create an object, we can use cls(), which is the same in other places.</span>
+
+<span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">nameOfStaticMethod</span><span class="p">(</span><span class="n">para1</span><span class="p">,</span> <span class="n">para2</span><span class="p">)</span> <span class="c1"># no cls reference here.</span>
+</pre></div>
+</div>
+<p>You may want to ask: <strong>why do we need to use class?</strong> Can’t we do everything by writing functions and just use them? Why do we need to combine properties and methods together and call it a <em>class</em>? Well, there are many reasons for that. But remember, every decision, every paradiagm in programming tends to do one thing — make the reusability of the code higher and easier to maintainance. OOP is a great way for doing that, and it becomes a major programming paradiagm these days. But when you want to solve a problem, OOP is not the only solution, you can write functions, and it may works well, but you will face a point where your functions are just disorganized, and the reusability is terrible. If you think in OOP, then it will be ok, because it just a paradiagm for programming, it doesn’t solve anything, just make you think clearer and become more effective.</p>
+</div>
+<div class="section" id="modules">
+<h3>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h3>
+<p>In Python, modules are very important in organizing your code. In simple term, a folder which contains <code class="code docutils literal notranslate"><span class="pre">__init__.py</span></code> file is considered as a <code class="code docutils literal notranslate"><span class="pre">module</span></code>. A python file is also considered as a module, and all the variables and functions in that file is referrable, means you can reuse them in other python codes.</p>
+<p>Let’s say we have a folder called <code class="code docutils literal notranslate"><span class="pre">hzd_module</span></code>, in side this folder we have a python file called <code class="code docutils literal notranslate"><span class="pre">func.py</span></code>, which contains two functions: <code class="code docutils literal notranslate"><span class="pre">func1</span></code> and <code class="code docutils literal notranslate"><span class="pre">func2</span></code>, and also a file called <code class="code docutils literal notranslate"><span class="pre">__init__.py</span></code>. Now if we want to create another file <code class="code docutils literal notranslate"><span class="pre">additionalfunc.py</span></code>, then I want to use the <code class="code docutils literal notranslate"><span class="pre">func1</span></code> in <code class="code docutils literal notranslate"><span class="pre">func.py</span></code>, I can write this statement in the beginning of <code class="code docutils literal notranslate"><span class="pre">additionalfunc</span></code> in order to refer to the <code class="code docutils literal notranslate"><span class="pre">func1</span></code>:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hzd_module.func</span> <span class="kn">import</span> <span class="n">func1</span>
+</pre></div>
+</div>
+<p>Now I can use <code class="code docutils literal notranslate"><span class="pre">func1</span></code> in the new python file.</p>
+</div>
+<div class="section" id="packages">
+<h3>Packages<a class="headerlink" href="#packages" title="Permalink to this headline">¶</a></h3>
+<p>Once we have written many classes and modules, we can bundle them into a package. For example, the package that I wrote for my own research is called <code class="code docutils literal notranslate"><span class="pre">hzdplugins</span></code>. You can upload your python package to either PyPI or Conda. Both are very good python package distributors.</p>
+<p>When you want to create a python package, you need certain structures. This can be easily found online.</p>
+</div>
+</div>
+<div class="section" id="language-sugar">
+<h2>Language sugar<a class="headerlink" href="#language-sugar" title="Permalink to this headline">¶</a></h2>
+<p>Language sugar is used to describe some features in a language that can help you write cleaner and more understandable codes.</p>
+<div class="section" id="decorators">
+<h3>Decorators<a class="headerlink" href="#decorators" title="Permalink to this headline">¶</a></h3>
+<p>Decorator is a very powerful tool in Python. It is just a function that can modify the behavior of another function.</p>
+<p>Let’s say that we have a function called <code class="code docutils literal notranslate"><span class="pre">div(a,</span> <span class="pre">b)</span></code>, which will return the value of <code class="code docutils literal notranslate"><span class="pre">a/b</span></code>. If <code class="code docutils literal notranslate"><span class="pre">b!=0</span></code>, then we are Ok,
+but if <code class="code docutils literal notranslate"><span class="pre">b=0</span></code>, then we will meet some trouble. Now let’s ask ourselves another questions: How can we check whether b=0 without changing the function <code class="code docutils literal notranslate"><span class="pre">div(a,b)</span></code>? You might ask: why do we need to do this? Sometimes when we try to modifiy different functions the same way, the decorator is a really useful tool for doing that.</p>
+<p>First let’s define the <code class="code docutils literal notranslate"><span class="pre">div(a,b)</span></code> function:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">div</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span><span class="o">/</span><span class="n">b</span>
+</pre></div>
+</div>
+<p>Then we create another function, which input parameter is a function, we call it <code class="code docutils literal notranslate"><span class="pre">func</span></code>:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">inside</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;You cannot divide 0.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">func</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">inside</span>
+</pre></div>
+</div>
+<p>Now we have this <code class="code docutils literal notranslate"><span class="pre">check</span></code> function which require a function as input, and also return another function that has different behavior as the original one, in this way we can modify the original function (which is <code class="code docutils literal notranslate"><span class="pre">div</span></code>) without actually changing its original code. This is a very useful technique in python programming.</p>
+<p>If we want to modify <code class="code docutils literal notranslate"><span class="pre">div</span></code>, usually we can do something like this:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">div</span> <span class="o">=</span> <span class="n">check</span><span class="p">(</span><span class="n">div</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now div has the same functionality as the <code class="code docutils literal notranslate"><span class="pre">inside</span></code> function. But there is a simpler way for doing this, just put <cite>&#64;check</cite> above the <code class="code docutils literal notranslate"><span class="pre">def</span> <span class="pre">div</span></code>, then you have the same effect. So now our code becomes cleaner.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nd">@check</span>
+<span class="k">def</span> <span class="nf">div</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span><span class="o">/</span><span class="n">b</span>
+</pre></div>
+</div>
+<p>So from the introduction above, we will know that:</p>
+<ul class="simple">
+<li><p>A decorator is a function, which take a function as an input, and return a modified function.</p></li>
+<li><p>The most important part of a decorator function is in the <code class="code docutils literal notranslate"><span class="pre">inside</span></code> function, which will provide most features in the decorator.</p></li>
+<li><p>The basic structure of decorator is universal, all we need to modify is the <code class="code docutils literal notranslate"><span class="pre">inside</span></code> function.</p></li>
+</ul>
+<p>What can we learn from the decorator syntax? Programming is just trying to find the most efficient way of doing things, there are infinite way for doing the same thing, but they have different complexities and aesthetic, we want to do things fast, efficiently, and also beautifully.</p>
+</div>
 </div>
 <div class="section" id="external-packages">
 <h2>External packages<a class="headerlink" href="#external-packages" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><strong>numpy</strong>: A package for dealing with arrays in python</p></li>
+<li><p><strong>scipy</strong>:</p></li>
+</ul>
 </div>
 </div>
 
