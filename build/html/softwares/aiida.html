@@ -88,8 +88,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../computerlanguages/index.html">Computer Languages for Scientific Computing</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Softwares</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="quantumespresso.html">Quantum Espresso</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Aiida</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Aiida</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#some-common-mistakes-in-using-aiida">Some common mistakes in using Aiida</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#aiida-common-exceptions-missingentrypointerror-entry-point-quantumespresso-pw-not-found-in-group-aiida-parsers">aiida.common.exceptions.MissingEntryPointError: Entry point ‘quantumespresso.pw’ not found in group ‘aiida.parsers’.</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#write-aiida-plugins">Write aiida plugins</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#write-the-calculation">Write the calculation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#write-the-parser">Write the Parser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#add-entry-points">Add entry points</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#write-the-workfunction-and-workchain">Write the workfunction and workchain</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="sphinx_doc.html">Sphinx Doc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="soft_online.html">Online softwares that could be helpful</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../blogs/index.html">This is the blog from Zheng-Da He</a></li>
@@ -166,6 +180,182 @@
 <p>I started learn how to use Aiida in November, 2020, and it suddenly release my burden on how to manage computational tasks. Before Aiida, all the management are done by using folders, which can be really inefficient and chaotic, but with Aiida, I can put everything in one jupyter notebook, then manage all the work, the connection to the supercomputer and also the database in one place.</p>
 <p>I have written two tutorial articles about how to install and configure Aiida on <a class="reference external" href="https://zhuanlan.zhihu.com/p/295175866">Ubuntu</a> and <a class="reference external" href="https://zhuanlan.zhihu.com/p/300490416">macOS</a>, since I have a Mac, so on macOS could be a better choice since the virtual machine is not as efficient as the main OS.</p>
 <p>When we try to learn Aiida or other programming frameworks, the first thing is always: get a demo running. Because you can learn a lot of things by <em>trial-and-error</em></p>
+<div class="section" id="some-common-mistakes-in-using-aiida">
+<h2>Some common mistakes in using Aiida<a class="headerlink" href="#some-common-mistakes-in-using-aiida" title="Permalink to this headline">¶</a></h2>
+<p>In here are some mistakes that I have been experienced:</p>
+<div class="section" id="aiida-common-exceptions-missingentrypointerror-entry-point-quantumespresso-pw-not-found-in-group-aiida-parsers">
+<h3>aiida.common.exceptions.MissingEntryPointError: Entry point ‘quantumespresso.pw’ not found in group ‘aiida.parsers’.<a class="headerlink" href="#aiida-common-exceptions-missingentrypointerror-entry-point-quantumespresso-pw-not-found-in-group-aiida-parsers" title="Permalink to this headline">¶</a></h3>
+<p>You need to check these things below:</p>
+<ul class="simple">
+<li><p>Whether you have the parser in <code class="code docutils literal notranslate"><span class="pre">aiida.parsers</span></code>, you can check that by typing: <code class="code docutils literal notranslate"><span class="pre">verdi</span> <span class="pre">plugin</span> <span class="pre">list</span> <span class="pre">aiida.parsers</span></code>, if <code class="code docutils literal notranslate"><span class="pre">quantumespresso.pw</span></code> is in, then you are OK for this check. If not, then you need to type <code class="code docutils literal notranslate"><span class="pre">reentry</span> <span class="pre">scan</span></code> and re-check again.</p></li>
+<li><p>If the first step is checked, then you should restart the daemon: <code class="code docutils literal notranslate"><span class="pre">verdi</span> <span class="pre">daemon</span> <span class="pre">restart</span> <span class="pre">--reset</span></code>, because the daemon may not have the information on the parser.</p></li>
+</ul>
+<p>For detailed information, please see <a class="reference external" href="https://groups.google.com/g/aiidausers/c/-zvnONEVIN0">this</a></p>
+</div>
+</div>
+<div class="section" id="write-aiida-plugins">
+<h2>Write aiida plugins<a class="headerlink" href="#write-aiida-plugins" title="Permalink to this headline">¶</a></h2>
+<p>In Aiida, I think the most important and most interesting concept is “plugins”, which can extend the capability of aiida-core, also give the user more freedom to create their own workflow in order to make the work more engaging and interesting (offload all the boring stuff).</p>
+<p>But writing aiida plugin is not that straight forward, I’m learning that right now. But reading without thinking is bad, and what better way to think than just writing about one’s thought, that’s why I’m writing all my thoughts in here in order to help me understand more about the structure of aiida-core and how everything connects together. Let’s begin!</p>
+<p>If we take a look at the <code class="code docutils literal notranslate"><span class="pre">aiida-quantumespresso</span></code>, we will see that the structure is:</p>
+<div class="figure align-center" id="id2">
+<a class="reference internal image-reference" href="../_images/aiida_qe.png"><img alt="../_images/aiida_qe.png" src="../_images/aiida_qe.png" style="width: 600px;" /></a>
+<p class="caption"><span class="caption-text">Screenshot of the structure of aiida_quantumespresso plugins</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+<p>the most important folders are: <code class="code docutils literal notranslate"><span class="pre">calculations</span></code>, <code class="code docutils literal notranslate"><span class="pre">parsers</span></code> and <code class="code docutils literal notranslate"><span class="pre">workflows</span></code>, others are supplementary.</p>
+<p>So if we want to write the aiida plugins by ourselves, we need to be able to:</p>
+<ul class="simple">
+<li><p>Write the calculations for a specific external program (e.g. VASP, CPMD, CP2K, Quantum Espresso, etc.)</p></li>
+<li><p>Write the parser for the results</p></li>
+<li><p>Write the workflows and workchains (workchain is future, so our main effort will be on writing workchain, but we will also talk about how to write the workflow and what’s the difference between them. In Aiida’s official website they have a really good explanation, but I want to have my own version of that.)</p></li>
+</ul>
+<div class="section" id="write-the-calculation">
+<h3>Write the calculation<a class="headerlink" href="#write-the-calculation" title="Permalink to this headline">¶</a></h3>
+<p>We should start with how to write the calculation. In order to do that we need to know what a calculation actually means in Aiida. So in aiida, The father class of all calculations is this class: <code class="code docutils literal notranslate"><span class="pre">aiida.engine.CalcJob</span></code>, so in order to write a calculation, we need to inherit from this class, something like:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aiida.engine</span> <span class="kn">import</span> <span class="n">CalcJob</span>
+
+<span class="k">class</span> <span class="nc">somethingCalculation</span><span class="p">(</span><span class="n">CalcJob</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>In this <code class="code docutils literal notranslate"><span class="pre">CalcJob</span></code> class, we need to define two functions: (1) <code class="code docutils literal notranslate"><span class="pre">define()</span></code> (2) <code class="code docutils literal notranslate"><span class="pre">prepare_for_submission()</span></code>. The first function (<code class="code docutils literal notranslate"><span class="pre">define()</span></code>) is used for declaring all the inputs, outputs, error messages that can happen during the calculation, and the second function (<code class="code docutils literal notranslate"><span class="pre">prepare_for_submission()</span></code>) is used for preparing all the input files and submit to the queue, managed by <code class="code docutils literal notranslate"><span class="pre">daemon</span></code> (we will talk about that later).</p>
+<p>Ok, now let’s try to write the <code class="code docutils literal notranslate"><span class="pre">define()</span></code> function, in here I give an example (from aiida official website), and try to explain it line by line, because that’s how you learn programming, but reading other people’s code and try to explain to others like you wrote them (even though you are not). That’s <a class="reference external" href="https://medium.com/taking-note/learning-from-the-feynman-technique-5373014ad230">Feynman technique</a>.</p>
+<p>Our <code class="code docutils literal notranslate"><span class="pre">define()</span></code> function is like in below:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aiida</span> <span class="kn">import</span> <span class="n">orm</span>
+<span class="kn">from</span> <span class="nn">aiida.engine</span> <span class="kn">import</span> <span class="n">CalcJob</span><span class="p">,</span> <span class="n">CalcJobProcessSpec</span>
+
+<span class="k">class</span> <span class="nc">hzdCalculation</span><span class="p">(</span><span class="n">CalcJob</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">define</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span><span class="n">CalcJobProcessSpec</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+
+        <span class="c1"># input parameter example</span>
+        <span class="n">spec</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">valid_type</span><span class="o">=</span><span class="p">(</span><span class="n">orm</span><span class="o">.</span><span class="n">Int</span><span class="p">,</span> <span class="n">orm</span><span class="o">.</span><span class="n">Float</span><span class="p">),</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;This is our first variable&#39;</span><span class="p">)</span>
+
+        <span class="c1"># output parameter example</span>
+        <span class="n">spec</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="n">validtype</span><span class="o">=</span><span class="p">(</span><span class="n">orm</span><span class="o">.</span><span class="n">Int</span><span class="p">,</span> <span class="n">orm</span><span class="o">.</span><span class="n">Float</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;This is the output of this calculation.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># output some error messages</span>
+        <span class="n">spec</span><span class="o">.</span><span class="n">exit_code</span><span class="p">(</span><span class="mi">666</span><span class="p">,</span> <span class="s1">&#39;EVIL_IS_COMING&#39;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s1">&#39;This is my first error message.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># set the default parser</span>
+        <span class="n">spec</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;options&#39;</span><span class="p">][</span><span class="s1">&#39;parser_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="s1">&#39;parser_name&#39;</span>
+</pre></div>
+</div>
+<p>This is a super simple way to define the <code class="code docutils literal notranslate"><span class="pre">define()</span></code> function. We should look at it line by line and try to explain everything that is happening right now:</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">from</span> <span class="pre">aiida</span> <span class="pre">import</span> <span class="pre">orm</span></code></p></li>
+</ul>
+<p><code class="code docutils literal notranslate"><span class="pre">orm</span></code> is the module in python which contains all aiida-specific types, you can only keep provenance in aiida if you use the type that they have provided, and there are lots of them, you can see that in the figure below:</p>
+<div class="figure align-center" id="id3">
+<a class="reference internal image-reference" href="../_images/aiida_orm.png"><img alt="../_images/aiida_orm.png" src="../_images/aiida_orm.png" style="width: 600px;" /></a>
+<p class="caption"><span class="caption-text">types in aiida.orm module</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+<p>There are some usual types (e.g. int, float) and other special types (e.g. FolderData, StructureData, etc.), but if you want to keep provenance in your calculation (which is recommended by the Aiida), you should use the types provided by aiida.</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">from</span> <span class="pre">aiida.engine</span> <span class="pre">import</span> <span class="pre">CalcJob,</span> <span class="pre">CalcJobProcessSpec</span></code></p></li>
+</ul>
+<p>We know that the <code class="code docutils literal notranslate"><span class="pre">CalcJob</span></code> is the father class of the our calculation class, but we need to understand more about the <code class="code docutils literal notranslate"><span class="pre">CalcJobProcessSpec</span></code>. This is the class for <code class="code docutils literal notranslate"><span class="pre">spec</span></code> in our code, if you want to learn more about it, please refer to this <a class="reference external" href="https://aiida.readthedocs.io/projects/aiida-core/en/latest/reference/apidoc/aiida.engine.processes.html#aiida.engine.processes.process_spec.CalcJobProcessSpec">website</a></p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">class</span> <span class="pre">hzdCalculation(CalcJob):</span></code></p></li>
+</ul>
+<p>This line is really simple, we define a new class called <code class="code docutils literal notranslate"><span class="pre">hzdCalculation</span></code>, and this class is inherited from <code class="code docutils literal notranslate"><span class="pre">CalcJob</span></code>.</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">&#64;classmethod</span></code> is the decorator of a class function. A class function is only defined in the class, the object generated by the class cannot access them. If you want to learn more about decorator, please refer to my tutorial on python in <cite>computerlanguages</cite> section.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">def</span> <span class="pre">define(cls,</span> <span class="pre">spec:CalcJobProcessSpec):</span></code></p></li>
+</ul>
+<p>This line define the function <code class="code docutils literal notranslate"><span class="pre">define()</span></code>, the <code class="code docutils literal notranslate"><span class="pre">cls</span></code> is common practice in python while defining a class function. The type of the <code class="code docutils literal notranslate"><span class="pre">spec</span></code> is <code class="code docutils literal notranslate"><span class="pre">CalcJobProcessSpec</span></code>, basically you can think about it as an dictionary. Well, a class is just like a type, but with more functionalities (methods in the class). Thats the essence of OOP, it is just a way of organizing your code. For simplicity we can just write: <code class="code docutils literal notranslate"><span class="pre">define(cls,</span> <span class="pre">spec)</span></code>.</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">super().define(spec)</span></code></p></li>
+</ul>
+<p>The <code class="code docutils literal notranslate"><span class="pre">super()</span></code> means the father class (in this case it is the <code class="code docutils literal notranslate"><span class="pre">CalcJob</span></code> class). Then we use the class method <code class="code docutils literal notranslate"><span class="pre">define(spec)</span></code>.</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">spec.input('x',</span> <span class="pre">valid_type=(orm.Int,</span> <span class="pre">orm.Float),</span> <span class="pre">help='This</span> <span class="pre">is</span> <span class="pre">our</span> <span class="pre">first</span> <span class="pre">variable')</span></code></p></li>
+</ul>
+<p>This is the declaration of the input parameters in the hzdCalculation. <code class="code docutils literal notranslate"><span class="pre">x</span></code> is the name of this input, <code class="code docutils literal notranslate"><span class="pre">valid_type</span></code> is the valid type of this variable, and <code class="code docutils literal notranslate"><span class="pre">help</span></code> is the meaning of this variable. If <code class="code docutils literal notranslate"><span class="pre">required</span></code> is not mentioned, then this variable is required, otherwise we should set <code class="code docutils literal notranslate"><span class="pre">required=False</span></code>, which means this parameter is not required.</p>
+<p>You can define lots of input parameters by using this statement. In the <code class="code docutils literal notranslate"><span class="pre">CalcJob</span></code> class, if you look at the <a class="reference external" href="https://aiida.readthedocs.io/projects/aiida-core/en/latest/_modules/aiida/engine/processes/calcjobs/calcjob.html#CalcJob.define">source code</a>), there are many variables have been pre-defined:</p>
+<div class="figure align-center" id="id4">
+<a class="reference internal image-reference" href="../_images/aiida_calcjob.png"><img alt="../_images/aiida_calcjob.png" src="../_images/aiida_calcjob.png" style="width: 600px;" /></a>
+<p class="caption"><span class="caption-text">All the pre-defined parameters that we could access in the calculation class.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</div>
+<p>We can see that some variable is named: <code class="code docutils literal notranslate"><span class="pre">metadata.options.resources</span></code>, that means that we can add hierarchy to the input parameters, for example when we want to build a <code class="code docutils literal notranslate"><span class="pre">PwCalculation</span></code> job, then sometimes we will write something like this:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">codename</span> <span class="o">=</span> <span class="s1">&#39;hzd_code&#39;</span>
+<span class="n">code</span> <span class="o">=</span> <span class="n">Code</span><span class="o">.</span><span class="n">get_from_string</span><span class="p">(</span><span class="n">codename</span><span class="p">)</span>
+<span class="n">builder</span> <span class="o">=</span> <span class="n">code</span><span class="o">.</span><span class="n">get_builder</span><span class="p">()</span>
+
+<span class="n">builder</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">resources</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;num_machines&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>So the input you define in the <code class="code docutils literal notranslate"><span class="pre">hzdCalculation</span></code> class will be given by the <code class="code docutils literal notranslate"><span class="pre">builder</span></code> when you try to use it, understand this connection is very important.</p>
+<p>The output parameters and the error message is almost the same as the input parameters, so we do not need to explain them more. As for the error message, Aiida has its own rules, which you can see it in the website.</p>
+<p>Now we have done writing the <code class="code docutils literal notranslate"><span class="pre">define(cls,</span> <span class="pre">spec)</span></code> functions, now let’s move on to the <code class="code docutils literal notranslate"><span class="pre">prepare_for_submission()</span></code> function.</p>
+<p>A really simple example is given in below:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">prepare_for_submission</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">:</span> <span class="n">Folder</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CalcInfo</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">folder</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">input_filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">something</span><span class="p">)</span>
+
+    <span class="n">codeinfo</span> <span class="o">=</span> <span class="n">CodeInfo</span><span class="p">()</span>
+    <span class="n">codeinfo</span><span class="o">.</span><span class="n">code_uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">code</span><span class="o">.</span><span class="n">uuid</span>
+    <span class="n">codeinfo</span><span class="o">.</span><span class="n">stdin_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">input_filename</span>
+    <span class="n">codeinfo</span><span class="o">.</span><span class="n">stdout_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">output_filename</span>
+
+    <span class="n">calcinfo</span> <span class="o">=</span> <span class="n">CalcInfo</span><span class="p">()</span>
+    <span class="n">calcinfo</span><span class="o">.</span><span class="n">codes_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">codeinfo</span><span class="p">]</span>
+    <span class="n">calcinfo</span><span class="o">.</span><span class="n">retrieve_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">output_filename</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">calcinfo</span>
+</pre></div>
+</div>
+<p>According to the <a class="reference external" href="https://aiida.readthedocs.io/projects/aiida-core/en/latest/howto/plugin_codes.html#how-to-plugin-codes-interfacing">aiida website</a>, <code class="code docutils literal notranslate"><span class="pre">prepare_for_submission()</span></code> functions has two jobs: (1) creating the input files in the format that the external code expects (2) returning a <code class="code docutils literal notranslate"><span class="pre">CalcInfo</span></code> object that contains instructions for the Aiida engine about how the code should be run.</p>
+<div class="line-block">
+<div class="line">The <code class="code docutils literal notranslate"><span class="pre">prepare_for_submission()</span></code> function is implemented from scratch, so there is no <code class="code docutils literal notranslate"><span class="pre">super()</span></code> method.</div>
+</div>
+</div>
+<div class="section" id="write-the-parser">
+<h3>Write the Parser<a class="headerlink" href="#write-the-parser" title="Permalink to this headline">¶</a></h3>
+<p>When we finished the simulation, we want to get as much information as possible for our analysis. So writing the parser for the output files is very important for Aiida. In this section we will talk about how to write a parser.</p>
+<p>Like writing a calculation, writing a parser has to inherit from <code class="code docutils literal notranslate"><span class="pre">Parser</span></code> class, so the class declaration can be written as:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">hzdParser</span><span class="p">(</span><span class="n">Parser</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>And a more detailed (but simple) implementation is listed in below:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">hzdParser</span><span class="p">(</span><span class="n">Parser</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">output_folder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrived</span>
+        <span class="k">with</span> <span class="n">output_folder</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_option</span><span class="p">(</span><span class="s1">&#39;output_filename&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="n">someValue</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="add-entry-points">
+<h3>Add entry points<a class="headerlink" href="#add-entry-points" title="Permalink to this headline">¶</a></h3>
+<p>For any Aiida plugins, we need to define the entry points, in this way Aiida will know which class it needs to call. Also entry point is a great way for simplifying the input. We need to define it in the <code class="code docutils literal notranslate"><span class="pre">setup.py</span></code> file in our package. And we should writing some like:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">setup</span>
+
+<span class="n">setup</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;aiida-hzd&#39;</span><span class="p">,</span>
+    <span class="n">packaes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;aiida_hzd&#39;</span><span class="p">],</span>
+    <span class="n">entry_points</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;aiida.calculations&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;hzdCalculation = aiida_hzd.calculations:hzdCalculation&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;aiida.parsers&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;hzdParser = aiida_hzd.parsers:hzdParser&#39;</span><span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Then your plugin should be Ok, once you install the plugin, you should do the <code class="code docutils literal notranslate"><span class="pre">reentry</span> <span class="pre">scan</span></code> again to make sure that all the calculations, parsers, workflow and workchains are all implemented.</p>
+</div>
+<div class="section" id="write-the-workfunction-and-workchain">
+<h3>Write the workfunction and workchain<a class="headerlink" href="#write-the-workfunction-and-workchain" title="Permalink to this headline">¶</a></h3>
+<p>For now we know how to write the calculation and the parser, then we should move to more advanced stuff, meaning the workflow and workchain. The difference between workfunction and workchain is that: workfunction can only be <code class="code docutils literal notranslate"><span class="pre">run</span></code>, but workchain can be <code class="code docutils literal notranslate"><span class="pre">submit</span></code> to the daemon in order to run in the background (or on the remote server).</p>
+<div class="line-block">
+<div class="line">workfunction and workchain are all workflows, they are just different implementation methods.</div>
+</div>
+</div>
+</div>
 </div>
 
 
