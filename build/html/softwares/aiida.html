@@ -13,6 +13,7 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/my_theme.css" type="text/css" />
 
   
   
@@ -98,6 +99,12 @@
 <li class="toctree-l4"><a class="reference internal" href="#write-the-parser">Write the Parser</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#add-entry-points">Add entry points</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#write-the-workfunction-and-workchain">Write the workfunction and workchain</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-run-workchain">How to run workchain</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#input-parameters-for-aiida-quantumespresso-workchain">Input parameters for aiida_quantumespresso workchain</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#for-pwbaseworkchain">For PwBaseWorkChain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#for-pwrelaxworkchain">For PwRelaxWorkChain</a></li>
 </ul>
 </li>
 </ul>
@@ -338,7 +345,7 @@
 
 <span class="n">setup</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s1">&#39;aiida-hzd&#39;</span><span class="p">,</span>
-    <span class="n">packaes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;aiida_hzd&#39;</span><span class="p">],</span>
+    <span class="n">packages</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;aiida_hzd&#39;</span><span class="p">],</span>
     <span class="n">entry_points</span><span class="o">=</span><span class="p">{</span>
         <span class="s1">&#39;aiida.calculations&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;hzdCalculation = aiida_hzd.calculations:hzdCalculation&#39;</span><span class="p">],</span>
         <span class="s1">&#39;aiida.parsers&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;hzdParser = aiida_hzd.parsers:hzdParser&#39;</span><span class="p">],</span>
@@ -354,6 +361,330 @@
 <div class="line-block">
 <div class="line">workfunction and workchain are all workflows, they are just different implementation methods.</div>
 </div>
+<p>For the workfunction, you can treat it as a set of <code class="code docutils literal notranslate"><span class="pre">&#64;calcfunction</span></code>, so that the provenance can be kept. But for the workchain, I think we need to analyze the code in <code class="code docutils literal notranslate"><span class="pre">aiida_quantumespresso</span></code>. After analyzing their code, I think we will be able to write our own workchains and combine different workchains to create more complex workflows.</p>
+<p>The source code can be found in <a class="reference external" href="https://github.com/aiidateam/aiida-quantumespresso/tree/develop/aiida_quantumespresso/workflows/pw">here</a>. We will start with the basic one: <code class="code docutils literal notranslate"><span class="pre">base.py</span></code></p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">..protocols.utils</span> <span class="kn">import</span> <span class="n">ProtocolMixin</span>
+<span class="c1"># The ProtocolMixin is the class defined in `workflows/protocols/utils.py`, I&#39;m not quite sure about the function of this class yet.</span>
+
+<span class="n">PwCalculation</span> <span class="o">=</span> <span class="n">CalculationFactory</span><span class="p">(</span><span class="s1">&#39;quantumespresso.pw&#39;</span><span class="p">)</span>
+<span class="c1"># Build the calculation. How to write the calculation has been discussed in above.</span>
+
+<span class="k">class</span> <span class="nc">PwBaseWorkChain</span><span class="p">(</span><span class="n">ProtocolMixin</span><span class="p">,</span> <span class="n">BaseRestartWorkChain</span><span class="p">):</span>
+<span class="sd">&quot;&quot;&quot;Workchain to run a Quantum ESPRESSO pw.x calculation with automated error handling and restarts.&quot;&quot;&quot;</span>
+<span class="c1"># PwBaseWorkChain is the basic workchain, The BaseRestartWorkChain is defined in aiida-core, which we will not go into the detail this time, but in the future I hope we will.</span>
+
+<span class="c1"># pylint: disable=too-many-public-methods</span>
+
+<span class="n">_process_class</span> <span class="o">=</span> <span class="n">PwCalculation</span> <span class="c1"># only appear once here, don&#39;t know the function</span>
+
+<span class="n">defaults</span> <span class="o">=</span> <span class="n">AttributeDict</span><span class="p">({</span>
+    <span class="s1">&#39;qe&#39;</span><span class="p">:</span> <span class="n">qe_defaults</span><span class="p">,</span>
+    <span class="s1">&#39;delta_threshold_degauss&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="s1">&#39;delta_factor_degauss&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s1">&#39;delta_factor_mixing_beta&#39;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+    <span class="s1">&#39;delta_factor_max_seconds&#39;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">,</span>
+    <span class="s1">&#39;delta_factor_nbnd&#39;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+    <span class="s1">&#39;delta_minimum_nbnd&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+<span class="p">})</span>
+<span class="c1"># default value for the parameters.</span>
+
+<span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">define</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
+<span class="c1"># same as calculation. This is just the structure for the Process in aiida-core.</span>
+    <span class="sd">&quot;&quot;&quot;Define the process specification.&quot;&quot;&quot;</span>
+    <span class="c1"># yapf: disable</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="c1"># the initialization of the define function in the parent class (in this case it would be BaseRestartWorkChain class)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">expose_inputs</span><span class="p">(</span><span class="n">PwCalculation</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s1">&#39;pw&#39;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;kpoints&#39;</span><span class="p">,))</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="s1">&#39;pw.metadata.options.resources&#39;</span><span class="p">,</span> <span class="n">valid_type</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="s1">&#39;kpoints&#39;</span><span class="p">,</span> <span class="n">valid_type</span><span class="o">=</span><span class="n">orm</span><span class="o">.</span><span class="n">KpointsData</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;An explicit k-points list or mesh. Either this or `kpoints_distance` has to be provided.&#39;</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="s1">&#39;kpoints_distance&#39;</span><span class="p">,</span> <span class="n">valid_type</span><span class="o">=</span><span class="n">orm</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The minimum desired distance in 1/Å between k-points in reciprocal space. The explicit k-points will &#39;</span>
+             <span class="s1">&#39;be generated automatically by a calculation function based on the input structure.&#39;</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="s1">&#39;kpoints_force_parity&#39;</span><span class="p">,</span> <span class="n">valid_type</span><span class="o">=</span><span class="n">orm</span><span class="o">.</span><span class="n">Bool</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Optional input when constructing the k-points based on a desired `kpoints_distance`. Setting this to &#39;</span>
+             <span class="s1">&#39;`True` will force the k-point mesh to have an even number of points along each lattice vector except &#39;</span>
+             <span class="s1">&#39;for any non-periodic directions.&#39;</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="s1">&#39;pseudo_family&#39;</span><span class="p">,</span> <span class="n">valid_type</span><span class="o">=</span><span class="n">orm</span><span class="o">.</span><span class="n">Str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">validate_pseudo_family</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;[Deprecated: use `pw.pseudos` instead] An alternative to specifying the pseudo potentials manually in&#39;</span>
+             <span class="s1">&#39; `pseudos`: one can specify the name of an existing pseudo potential family and the work chain will &#39;</span>
+             <span class="s1">&#39;generate the pseudos automatically based on the input structure.&#39;</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="s1">&#39;automatic_parallelization&#39;</span><span class="p">,</span> <span class="n">valid_type</span><span class="o">=</span><span class="n">orm</span><span class="o">.</span><span class="n">Dict</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;When defined, the work chain will first launch an initialization calculation to determine the &#39;</span>
+             <span class="s1">&#39;dimensions of the problem, and based on this it will try to set optimal parallelization flags.&#39;</span><span class="p">)</span>
+
+    <span class="n">spec</span><span class="o">.</span><span class="n">outline</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">setup</span><span class="p">,</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">validate_parameters</span><span class="p">,</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">validate_kpoints</span><span class="p">,</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">validate_pseudos</span><span class="p">,</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">validate_resources</span><span class="p">,</span>
+        <span class="n">if_</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">should_run_init</span><span class="p">)(</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">validate_init_inputs</span><span class="p">,</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">run_init</span><span class="p">,</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">inspect_init</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">while_</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">should_run_process</span><span class="p">)(</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">prepare_process</span><span class="p">,</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">run_process</span><span class="p">,</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">inspect_process</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">results</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">spec</span><span class="o">.</span><span class="n">expose_outputs</span><span class="p">(</span><span class="n">PwCalculation</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="s1">&#39;automatic_parallelization&#39;</span><span class="p">,</span> <span class="n">valid_type</span><span class="o">=</span><span class="n">orm</span><span class="o">.</span><span class="n">Dict</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The results of the automatic parallelization analysis if performed.&#39;</span><span class="p">)</span>
+
+    <span class="n">spec</span><span class="o">.</span><span class="n">exit_code</span><span class="p">(</span><span class="mi">201</span><span class="p">,</span> <span class="s1">&#39;ERROR_INVALID_INPUT_PSEUDO_POTENTIALS&#39;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s1">&#39;The explicit `pseudos` or `pseudo_family` could not be used to get the necessary pseudos.&#39;</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">exit_code</span><span class="p">(</span><span class="mi">202</span><span class="p">,</span> <span class="s1">&#39;ERROR_INVALID_INPUT_KPOINTS&#39;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s1">&#39;Neither the `kpoints` nor the `kpoints_distance` input was specified.&#39;</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">exit_code</span><span class="p">(</span><span class="mi">203</span><span class="p">,</span> <span class="s1">&#39;ERROR_INVALID_INPUT_RESOURCES&#39;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s1">&#39;Neither the `options` nor `automatic_parallelization` input was specified.&#39;</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">exit_code</span><span class="p">(</span><span class="mi">204</span><span class="p">,</span> <span class="s1">&#39;ERROR_INVALID_INPUT_RESOURCES_UNDERSPECIFIED&#39;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s1">&#39;The `metadata.options` did not specify both `resources.num_machines` and `max_wallclock_seconds`.&#39;</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">exit_code</span><span class="p">(</span><span class="mi">210</span><span class="p">,</span> <span class="s1">&#39;ERROR_INVALID_INPUT_AUTOMATIC_PARALLELIZATION_MISSING_KEY&#39;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s1">&#39;Required key for `automatic_parallelization` was not specified.&#39;</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">exit_code</span><span class="p">(</span><span class="mi">211</span><span class="p">,</span> <span class="s1">&#39;ERROR_INVALID_INPUT_AUTOMATIC_PARALLELIZATION_UNRECOGNIZED_KEY&#39;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s1">&#39;Unrecognized keys were specified for `automatic_parallelization`.&#39;</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">exit_code</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="s1">&#39;ERROR_UNRECOVERABLE_FAILURE&#39;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s1">&#39;The calculation failed with an unidentified unrecoverable error.&#39;</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">exit_code</span><span class="p">(</span><span class="mi">310</span><span class="p">,</span> <span class="s1">&#39;ERROR_KNOWN_UNRECOVERABLE_FAILURE&#39;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s1">&#39;The calculation failed with a known unrecoverable error.&#39;</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">exit_code</span><span class="p">(</span><span class="mi">320</span><span class="p">,</span> <span class="s1">&#39;ERROR_INITIALIZATION_CALCULATION_FAILED&#39;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s1">&#39;The initialization calculation failed.&#39;</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">exit_code</span><span class="p">(</span><span class="mi">501</span><span class="p">,</span> <span class="s1">&#39;ERROR_IONIC_CONVERGENCE_REACHED_EXCEPT_IN_FINAL_SCF&#39;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s1">&#39;Then ionic minimization cycle converged but the thresholds are exceeded in the final SCF.&#39;</span><span class="p">)</span>
+    <span class="c1"># yapf: enable</span>
+</pre></div>
+</div>
+<p>Now let’s analyze this code, and learn how to write a WorkChain.</p>
+<p>Take a look at <code class="code docutils literal notranslate"><span class="pre">spec.expose_inputs(PwCalculation,</span> <span class="pre">namespace='pw',</span> <span class="pre">exclude=('kpoints',))</span></code></p>
+<p>This is a very, very important statement. Because in this way we can connect different calculations and workchains together.</p>
+<p>In order to understand this command, we need to understand the meaning of <code class="code docutils literal notranslate"><span class="pre">namespace</span></code>, and this is the key in our input parameters of the workchain.</p>
+<p>When we submit a workchain, we need to use this command: <code class="code docutils literal notranslate"><span class="pre">chainNode</span> <span class="pre">=</span> <span class="pre">submit(hzdWorkChain,</span> <span class="pre">**inputs)</span></code>, where in the <code class="code docutils literal notranslate"><span class="pre">inputs</span></code> (dictionary), you can write:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;pw&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;CONTROL&#39;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s1">&#39;SYSTEM&#39;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s1">&#39;ELECTRONS&#39;</span><span class="p">:</span> <span class="p">{}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>So that our workchain will know if in input there is a key called <code class="code docutils literal notranslate"><span class="pre">pw</span></code>, then I should assign the parameter in that key to <code class="code docutils literal notranslate"><span class="pre">PwCalculation</span></code>.</p>
+<p>Other <code class="code docutils literal notranslate"><span class="pre">spec.input</span></code> commands are not very interesting because we have already discussed them during the writing of calculation.</p>
+<p>Then another import part of the WorkFunction is <code class="code docutils literal notranslate"><span class="pre">spec.outline()</span></code>:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">spec</span><span class="o">.</span><span class="n">outline</span><span class="p">(</span>
+    <span class="bp">cls</span><span class="o">.</span><span class="n">setup</span><span class="p">,</span>
+    <span class="bp">cls</span><span class="o">.</span><span class="n">validate_parameters</span><span class="p">,</span>
+    <span class="bp">cls</span><span class="o">.</span><span class="n">validate_kpoints</span><span class="p">,</span>
+    <span class="bp">cls</span><span class="o">.</span><span class="n">validate_pseudos</span><span class="p">,</span>
+    <span class="bp">cls</span><span class="o">.</span><span class="n">validate_resources</span><span class="p">,</span>
+    <span class="n">if_</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">should_run_init</span><span class="p">)(</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">validate_init_inputs</span><span class="p">,</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">run_init</span><span class="p">,</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">inspect_init</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">while_</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">should_run_process</span><span class="p">)(</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">prepare_process</span><span class="p">,</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">run_process</span><span class="p">,</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">inspect_process</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="bp">cls</span><span class="o">.</span><span class="n">results</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="code docutils literal notranslate"><span class="pre">spec.outline()</span></code> function will define the logic of your workchain, bascially means the flow of your calculation. For example, if I want to calculate the PDOS of certain system, the procedure is like this:</p>
+<ul class="simple">
+<li><p>Run the geometric optimization calculation (<code class="code docutils literal notranslate"><span class="pre">relax/vc-relax</span></code>) on the system in order to get the optimized structure.</p></li>
+<li><p>Run the <code class="code docutils literal notranslate"><span class="pre">scf</span></code> calculation on the optimized structure to get the wavefunction and charge density.</p></li>
+<li><p>Run the <code class="code docutils literal notranslate"><span class="pre">nscf</span></code> calculation with denser k-point meshes.</p></li>
+<li><p>Run the <code class="code docutils literal notranslate"><span class="pre">projwfc.x</span></code> code to get the projected density of states (PDOS)</p></li>
+</ul>
+<p>This is the logic, if we want to apply them in the workfunction, then our <code class="code docutils literal notranslate"><span class="pre">spec.outline()</span></code> could be written like this:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">spec</span><span class="o">.</span><span class="n">outline</span><span class="p">(</span>
+    <span class="bp">cls</span><span class="o">.</span><span class="n">relax</span><span class="p">,</span>
+    <span class="bp">cls</span><span class="o">.</span><span class="n">scf</span><span class="p">,</span>
+    <span class="bp">cls</span><span class="o">.</span><span class="n">nscf</span><span class="p">,</span>
+    <span class="bp">cls</span><span class="o">.</span><span class="n">projwfc</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>But the classfunction (<code class="code docutils literal notranslate"><span class="pre">cls.relax</span></code> etc.) needs to be written later, we will talk about how to write these functions later.</p>
+<p>For the output part, since we can use <code class="code docutils literal notranslate"><span class="pre">spec.expose_inputs()</span></code> to simplify the code, we can also expose the output of certain calculation / workchain by using <code class="code docutils literal notranslate"><span class="pre">spec.expose_outputs()</span></code>. Just like the author did in this statement:
+<code class="code docutils literal notranslate"><span class="pre">spec.expose_outputs(PwCalculation)</span></code>. Other outputs can be defined by <code class="code docutils literal notranslate"><span class="pre">spec.output()</span></code>.</p>
+<p>Then the exit_code part is not that interesting either, it is just manual work of showing all kinds of error messages and suggestions about how to deal with them. I think what’s more important right now is to learn how to write the classmethods in the <code class="code docutils literal notranslate"><span class="pre">spec.outline()</span></code>, this is the heart of workchain.</p>
+<div class="section" id="cls-setup">
+<h4>cls.setup<a class="headerlink" href="#cls-setup" title="Permalink to this headline">¶</a></h4>
+<p>First we will look at <code class="code docutils literal notranslate"><span class="pre">cls.setup</span></code>, its source code is like:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Call the `setup` of the `BaseRestartWorkChain` and then create the inputs dictionary in `self.ctx.inputs`.</span>
+<span class="sd">    This `self.ctx.inputs` dictionary will be used by the `BaseRestartWorkChain` to submit the calculations in the</span>
+<span class="sd">    internal loop.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">restart_calc</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">AttributeDict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exposed_inputs</span><span class="p">(</span><span class="n">PwCalculation</span><span class="p">,</span> <span class="s1">&#39;pw&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The <code class="code docutils literal notranslate"><span class="pre">cls.setup</span></code> function can setup the <code class="code docutils literal notranslate"><span class="pre">PwCalculation</span></code> parameters. First it will initialize from the parent class <code class="code docutils literal notranslate"><span class="pre">BaseRestartWorkChain</span></code> (denoted as <code class="code docutils literal notranslate"><span class="pre">super()</span></code>). Then we see a variable named <code class="code docutils literal notranslate"><span class="pre">self.ctx.restart_calc</span></code>, what is this <code class="code docutils literal notranslate"><span class="pre">self.ctx</span></code> mean? You can think about this as a object property, where you can access the input of the workchain by calling <code class="code docutils literal notranslate"><span class="pre">self.ctx.inputs</span></code>. If you assign a namespace in the <code class="code docutils literal notranslate"><span class="pre">spec.expose_inputs</span></code> (like in this case the namespace for <code class="code docutils literal notranslate"><span class="pre">PwCalculation</span></code> is <code class="code docutils literal notranslate"><span class="pre">pw</span></code>), so you can assign all the inputs from <code class="code docutils literal notranslate"><span class="pre">PwCalculation</span></code> to workchain by this command:</p>
+<p><code class="code docutils literal notranslate"><span class="pre">self.ctx.inputs</span> <span class="pre">=</span> <span class="pre">AttributeDict(self.exposed_inputs(PwCalculation,</span> <span class="pre">'pw'))</span></code></p>
+<p>Then there are some validation processes, which is important, but you can skip them (if you trust your own input and don’t want the code tell you what to put).</p>
+</div>
+<div class="section" id="cls-should-run-init">
+<h4>cls.should_run_init<a class="headerlink" href="#cls-should-run-init" title="Permalink to this headline">¶</a></h4>
+<p>The source code of <code class="code docutils literal notranslate"><span class="pre">cls.should_run_init()</span></code> is:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">should_run_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return whether an initialization calculation should be run.</span>
+<span class="sd">    :return: boolean, `True` if `automatic_parallelization` was specified in the inputs, `False` otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s1">&#39;automatic_parallelization&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span>
+</pre></div>
+</div>
+<p>So it is really simple: if <code class="code docutils literal notranslate"><span class="pre">automatic_parallelization</span></code> tag is in self.inputs, then return <code class="code docutils literal notranslate"><span class="pre">True</span></code>, otherwise return <code class="code docutils literal notranslate"><span class="pre">False</span></code>.</p>
+<p>But what’s interesting here is that now we have two different ways to write input parameter: (1) <code class="code docutils literal notranslate"><span class="pre">self.input</span></code> and (2) <code class="code docutils literal notranslate"><span class="pre">self.ctx.input</span></code>. What’s the difference between them? (Not so sure right now, but I’m going to find out)</p>
+</div>
+<div class="section" id="cls-run-init">
+<h4>cls.run_init<a class="headerlink" href="#cls-run-init" title="Permalink to this headline">¶</a></h4>
+<p>The source code of <code class="code docutils literal notranslate"><span class="pre">cls.run_init()</span></code> is:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run an initialization `PwCalculation` that will exit after the preamble.</span>
+<span class="sd">    In the preamble, all the relevant dimensions of the problem are computed which allows us to make an estimate of</span>
+<span class="sd">    the required resources and what parallelization flags need to be set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">inputs</span>
+
+    <span class="c1"># Set the initialization flag and the initial default options</span>
+    <span class="n">inputs</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;ONLY_INITIALIZATION&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">inputs</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">update_mapping</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">],</span> <span class="n">get_default_options</span><span class="p">())</span>
+
+    <span class="c1"># Prepare the final input dictionary</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">prepare_process_inputs</span><span class="p">(</span><span class="n">PwCalculation</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span>
+    <span class="n">running</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">PwCalculation</span><span class="p">,</span> <span class="o">**</span><span class="n">inputs</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;launching initialization </span><span class="si">{</span><span class="n">running</span><span class="o">.</span><span class="n">pk</span><span class="si">}</span><span class="s1">&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">process_name</span><span class="si">}</span><span class="s1">&gt;&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ToContext</span><span class="p">(</span><span class="n">calculation_init</span><span class="o">=</span><span class="n">running</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-run-workchain">
+<h2>How to run workchain<a class="headerlink" href="#how-to-run-workchain" title="Permalink to this headline">¶</a></h2>
+<p>The procedure for submitting the workfunction can be written as:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aiida.engine</span> <span class="kn">import</span> <span class="n">submit</span>
+<span class="kn">from</span> <span class="nn">aiida.plugins</span> <span class="kn">import</span> <span class="n">WorkflowFactory</span>
+
+<span class="n">hzdWorkChain</span> <span class="o">=</span> <span class="n">WorkflowFactory</span><span class="p">(</span><span class="s1">&#39;hzdWorkChain_entrypoint&#39;</span><span class="p">)</span>
+<span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># the input file for our workchain</span>
+<span class="p">}</span>
+
+<span class="n">workchain_node</span> <span class="o">=</span> <span class="n">submit</span><span class="p">(</span><span class="n">hzdWorkChain</span><span class="p">,</span> <span class="o">**</span><span class="n">inputs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Another way is to use the <code class="code docutils literal notranslate"><span class="pre">get_builder()</span></code> methods just like the <code class="code docutils literal notranslate"><span class="pre">CalcJob</span></code>:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aiida.plugins</span> <span class="kn">import</span> <span class="n">WorkflowFactory</span>
+
+<span class="n">hzdWorkChain</span> <span class="o">=</span> <span class="n">WorkflowFactory</span><span class="p">(</span><span class="s1">&#39;hzdWorkChain_entrypoint&#39;</span><span class="p">)</span>
+<span class="n">builder</span> <span class="o">=</span> <span class="n">hzdWorkChain</span><span class="o">.</span><span class="n">get_builder</span><span class="p">()</span>
+
+<span class="c1"># Then we should use builder to assign the parameters</span>
+
+<span class="n">workchain_node</span> <span class="o">=</span> <span class="n">submit</span><span class="p">(</span><span class="n">builder</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Of course we can combine together different workchains to create more advanced and more complicated workchains, and this is really important for more complex workflow in computational material science.</p>
+<p>The reason why most of aiida plugins are similar is due to the reason that the base for aiida-core is called <a class="reference external" href="https://github.com/aiidateam/plumpy">plumpy</a></p>
+</div>
+<div class="section" id="input-parameters-for-aiida-quantumespresso-workchain">
+<h2>Input parameters for aiida_quantumespresso workchain<a class="headerlink" href="#input-parameters-for-aiida-quantumespresso-workchain" title="Permalink to this headline">¶</a></h2>
+<p>Since there are no documentations on the input parameters of aiida_quantumespresso workchain, so I have provide my own version of input in below. All the input files are tested and work fine.</p>
+<div class="section" id="for-pwbaseworkchain">
+<h3>For PwBaseWorkChain<a class="headerlink" href="#for-pwbaseworkchain" title="Permalink to this headline">¶</a></h3>
+<p>The example script is shown in below, the parameters are in the input file:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aiida.plugins</span> <span class="kn">import</span> <span class="n">WorkflowFactory</span>
+<span class="kn">from</span> <span class="nn">aiida.orm</span> <span class="kn">import</span> <span class="n">KpointsData</span><span class="p">,</span> <span class="n">Code</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">UpfData</span>
+<span class="kn">from</span> <span class="nn">aiida.engine</span> <span class="kn">import</span> <span class="n">submit</span>
+
+<span class="kn">from</span> <span class="nn">hzdplugins.structure.build</span> <span class="kn">import</span> <span class="n">bulkFromString</span>
+<span class="kn">from</span> <span class="nn">hzdplugins.aiidaplugins.info</span> <span class="kn">import</span> <span class="n">viewStructure</span>
+
+<span class="n">PwWorkChain</span> <span class="o">=</span> <span class="n">WorkflowFactory</span><span class="p">(</span><span class="s1">&#39;quantumespresso.pw.base&#39;</span><span class="p">)</span>
+
+<span class="n">Pt_bulk</span> <span class="o">=</span> <span class="n">bulkFromString</span><span class="p">(</span><span class="s1">&#39;Pt&#39;</span><span class="p">,</span> <span class="s1">&#39;fcc&#39;</span><span class="p">,</span> <span class="mf">3.98</span><span class="p">,</span> <span class="n">cubic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">supercell</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+<span class="n">kpts</span> <span class="o">=</span> <span class="n">KpointsData</span><span class="p">()</span>
+<span class="n">kpts</span><span class="o">.</span><span class="n">set_kpoints_mesh</span><span class="p">([</span><span class="mf">8.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">])</span>
+
+<span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span>
+<span class="s1">&#39;pw&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="n">Code</span><span class="p">()</span><span class="o">.</span><span class="n">get_from_string</span><span class="p">(</span><span class="s1">&#39;pw.x-6.5-rwth-claix-mac@rwth-claix-mac&#39;</span><span class="p">),</span>
+    <span class="s1">&#39;structure&#39;</span><span class="p">:</span> <span class="n">Pt_bulk</span><span class="p">,</span>
+    <span class="s1">&#39;pseudos&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;Pt&#39;</span><span class="p">:</span> <span class="n">UpfData</span><span class="p">(</span><span class="s1">&#39;/Users/z.he/Documents/google-drive/aiida/python/&#39;</span><span class="o">+</span><span class="s1">&#39;Pt.pbesol-spfn-rrkjus_psl.1.0.0.UPF&#39;</span><span class="p">)},</span>
+    <span class="s1">&#39;parameters&#39;</span><span class="p">:</span> <span class="n">Dict</span><span class="p">(</span><span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;CONTROL&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;calculation&#39;</span><span class="p">:</span> <span class="s1">&#39;vc-relax&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;max_seconds&#39;</span><span class="p">:</span> <span class="mi">86000</span><span class="p">,</span>
+            <span class="s1">&#39;restart_mode&#39;</span><span class="p">:</span> <span class="s1">&#39;from_scratch&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;wf_collect&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;nstep&#39;</span><span class="p">:</span> <span class="mi">50000</span><span class="p">,</span>
+            <span class="s1">&#39;tstress&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;tprnfor&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;etot_conv_thr&#39;</span><span class="p">:</span> <span class="mf">1e-06</span><span class="p">,</span>
+            <span class="s1">&#39;forc_conv_thr&#39;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+            <span class="s1">&#39;disk_io&#39;</span><span class="p">:</span> <span class="s1">&#39;low&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;verbosity&#39;</span><span class="p">:</span> <span class="s1">&#39;low&#39;</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;SYSTEM&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;ibrav&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;nosym&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;ecutwfc&#39;</span><span class="p">:</span> <span class="mf">50.0</span><span class="p">,</span>
+            <span class="s1">&#39;ecutrho&#39;</span><span class="p">:</span> <span class="mf">500.0</span><span class="p">,</span>
+            <span class="s1">&#39;occupations&#39;</span><span class="p">:</span> <span class="s1">&#39;smearing&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;degauss&#39;</span><span class="p">:</span> <span class="mf">0.002</span><span class="p">,</span>
+            <span class="s1">&#39;smearing&#39;</span><span class="p">:</span> <span class="s1">&#39;gaussian&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;input_dft&#39;</span><span class="p">:</span> <span class="s1">&#39;PBESOL&#39;</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;ELECTRONS&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;electron_maxstep&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+            <span class="s1">&#39;conv_thr&#39;</span><span class="p">:</span> <span class="mf">1.0e-6</span><span class="p">,</span>
+            <span class="s1">&#39;diagonalization&#39;</span><span class="p">:</span> <span class="s1">&#39;david&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;mixing_mode&#39;</span><span class="p">:</span> <span class="s1">&#39;plain&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;mixing_beta&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+            <span class="s1">&#39;mixing_ndim&#39;</span><span class="p">:</span> <span class="mi">10</span>
+        <span class="p">}</span>
+    <span class="p">}),</span>
+    <span class="s1">&#39;settings&#39;</span><span class="p">:</span> <span class="n">Dict</span><span class="p">(</span><span class="nb">dict</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;cmdline&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;-nk&#39;</span><span class="p">,</span> <span class="s1">&#39;4&#39;</span><span class="p">]</span>
+    <span class="p">}),</span>
+    <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;WorkChain_Trial_1&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Trial on the workchain&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;options&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;resources&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;num_machines&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>  <span class="c1"># on rwth_claix, each node has 48 cores.</span>
+            <span class="s1">&#39;max_wallclock_seconds&#39;</span><span class="p">:</span> <span class="mi">86400</span><span class="p">,</span>
+            <span class="s1">&#39;account&#39;</span><span class="p">:</span> <span class="s1">&#39;jara0037&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;scheduler_stderr&#39;</span><span class="p">:</span> <span class="s1">&#39;stderr&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;scheduler_stdout&#39;</span><span class="p">:</span> <span class="s1">&#39;stdout&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;queue_name&#39;</span><span class="p">:</span> <span class="s1">&#39;c18m&#39;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">},</span>
+<span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpts</span>
+<span class="p">}</span>
+
+<span class="n">calcWorkChain</span> <span class="o">=</span> <span class="n">submit</span><span class="p">(</span><span class="n">PwWorkChain</span><span class="p">,</span> <span class="o">**</span><span class="n">inputs</span><span class="p">)</span>
+<span class="n">calcWorkChain</span><span class="o">.</span><span class="n">uuid</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="for-pwrelaxworkchain">
+<h3>For PwRelaxWorkChain<a class="headerlink" href="#for-pwrelaxworkchain" title="Permalink to this headline">¶</a></h3>
 </div>
 </div>
 </div>

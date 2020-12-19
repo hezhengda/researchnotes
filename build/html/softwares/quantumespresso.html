@@ -13,6 +13,7 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/my_theme.css" type="text/css" />
 
   
   
@@ -87,9 +88,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../theoreticalbackground/index.html">Theoretical Background</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../computerlanguages/index.html">Computer Languages for Scientific Computing</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Softwares</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Quantum Espresso</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Quantum Espresso</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#error-in-routine-stres-hub-1-non-symmetric-stress-contribution">Error in routine stres_hub (1): non-symmetric stress contribution</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="aiida.html">Aiida</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sphinx_doc.html">Sphinx Doc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="soft_online.html">Online softwares that could be helpful</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../blogs/index.html">This is the blog from Zheng-Da He</a></li>
@@ -162,6 +167,11 @@
             
   <div class="section" id="quantum-espresso">
 <h1>Quantum Espresso<a class="headerlink" href="#quantum-espresso" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="error-in-routine-stres-hub-1-non-symmetric-stress-contribution">
+<h2>Error in routine stres_hub (1): non-symmetric stress contribution<a class="headerlink" href="#error-in-routine-stres-hub-1-non-symmetric-stress-contribution" title="Permalink to this headline">¶</a></h2>
+<p>This error is caused by using <code class="code docutils literal notranslate"><span class="pre">vc-relax</span></code>, <code class="code docutils literal notranslate"><span class="pre">tstress</span></code> and <code class="code docutils literal notranslate"><span class="pre">mixing_fixed_ns</span></code> together.</p>
+<p><strong>Solution</strong>: Just use <code class="code docutils literal notranslate"><span class="pre">scf</span></code> for calculation, and set <code class="code docutils literal notranslate"><span class="pre">tstress=False</span></code>, also with <code class="code docutils literal notranslate"><span class="pre">mixing_fixed_ns</span> <span class="pre">=</span> <span class="pre">50</span></code> as a starting point. The error will be gone and you will get more accurate initial wavefunction for your further simulations.</p>
+</div>
 </div>
 
 

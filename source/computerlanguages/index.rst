@@ -45,6 +45,8 @@ When you want to learn a new programming languages, the things below are really 
 
 So in this tutorial, I will introduce each langauge as the same procedure above. First we will talk about the basic commands in the langauge, we will give several examples (very simple examples), then we will move on to the organization of larger programs, once we have finished that, we can move on to the more advanced topics, like how to use external packages, and start doing real-world problems. But for more important packages, we will put them in the software section. Also I think when we learn a programming language, we don't really need to remember all the "strange" usage of the language, it just like when we learn english, we don't need try to become Shakespeare, we just need to learn how to communicate with others effectively, so don't put too much attention on the things that you will not use them later. Stay on the fundamentals, because you will use them again and again in the future.
 
+The only way to learn programming is just doing projects, and learn what you can do with the computer with all the tools you have right now. (By George Hotz, famous hacker)
+
 .. toctree::
    :maxdepth: 1
    :caption: General-Purpose Programming Languages:

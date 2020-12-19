@@ -173,3 +173,9 @@ External packages
 
 * **numpy**: A package for dealing with arrays in python
 * **scipy**:
+
+Python Techniques
+-----------------
+
+Use python to do scraping on the website
+****************************************

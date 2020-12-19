@@ -22,3 +22,6 @@ Ab-Initio simulation package
 * `Quantum Espresso <https://www.quantum-espresso.org/>`_
 * `VASP <https://www.vasp.at/>`_
 * `SIESTA <https://departments.icmab.es/leem/siesta/>`_
+* `JDFTx <https://jdftx.org/>`_
+* `CPMD <https://www.cpmd.org/wordpress/>`_
+* `CP2K <https://www.cp2k.org/>`_
